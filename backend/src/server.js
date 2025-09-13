@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 
 
 const express = require('express');
@@ -36,4 +34,3 @@ app.listen(PORT, () => {
 });
 
 console.log(process.env)
->>>>>>> Stashed changes
