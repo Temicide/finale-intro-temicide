@@ -1,26 +1,7 @@
-const express = require('express');
+import express from "express";
+import FavouriteMeal from "../models/mealModel.js";
+
 const router = express.Router();
-const { MongoClient, ObjectId } = require('mongodb');
-
-const MONGO_URI = process.env.MONGO_URI;
-const DB_NAME = process.env.MONGO_DB || 'test';
-
-let client;
-let db;
-
-async function connectMongo() {
-  if (!client) {
-    client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    await client.connect();
-    db = client.db(DB_NAME);
-  }
-  return db;
-}
-
-async function getCollection() {
-  const database = await connectMongo();
-  return database.collection("favouriteMeals");
-}
 
 // GET /api/mongo/favoriteMeals - List all documents
 router.get('/', async (req, res) => {
@@ -32,12 +13,13 @@ router.get('/', async (req, res) => {
         error: 'user_id query parameter is required.' 
       });
     }
-    const col = await getCollection();
-    const docs = await col.find({user_id}).toArray();
+    
+    const meals = await FavouriteMeal.find({ user_id }).sort({ createdAt: -1 });
+    
     res.json({
       success: true,
-      data: docs,
-      count: docs.length
+      data: meals,
+      count: meals.length
     });
   } catch (err) {
     res.status(500).json({ 
@@ -50,35 +32,27 @@ router.get('/', async (req, res) => {
 // POST /api/mongo/favoriteMeals - Insert a document
 router.post('/', async (req, res) => {
   try {
-    // Validate meal suggestion structure first
-    const data = req.body;
-    const valid = (
-      typeof data.name === 'string' &&
-      typeof data.description === 'string' &&
-      Array.isArray(data.ingredients) &&
-      Array.isArray(data.instructions) &&
-      typeof data.nutritional_info === 'object' &&
-      typeof data.nutritional_info.calories === 'number' &&
-      typeof data.nutritional_info.protein === 'number' &&
-      typeof data.nutritional_info.carbohydrates === 'number' &&
-      typeof data.nutritional_info.fat === 'number' &&
-      typeof data.user_id === 'string'
-    );
+    const mealData = req.body;
     
-    if (!valid) {
-      return res.status(400).json({ error: 'Invalid meal suggestion structure.' });
-    }
-
-    const col = await getCollection();
-    const result = await col.insertOne(data);
+    // Create new meal using Mongoose model (validation handled by schema)
+    const newMeal = new FavouriteMeal(mealData);
+    const savedMeal = await newMeal.save();
     
-    // Return structured response
     res.status(201).json({
       success: true,
-      insertedId: result.insertedId,
+      data: savedMeal,
       message: 'Meal added to favorites successfully'
     });
   } catch (err) {
+    // Handle Mongoose validation errors
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid meal data',
+        details: err.message
+      });
+    }
+    
     res.status(500).json({ 
       success: false, 
       error: err.message 
@@ -89,8 +63,7 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const col = await getCollection();
-    const meal = await col.findOne({_id: new ObjectId(id)});
+    const meal = await FavouriteMeal.findById(id);
     
     if (!meal) {
       return res.status(404).json({
@@ -113,11 +86,14 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const col = await getCollection();
     const { id } = req.params;
-    const result = await col.updateOne({ _id: new ObjectId(id) }, { $set: req.body });
+    const updatedMeal = await FavouriteMeal.findByIdAndUpdate(
+      id, 
+      req.body, 
+      { new: true, runValidators: true }
+    );
     
-    if (result.matchedCount === 0) {
+    if (!updatedMeal) {
       return res.status(404).json({
         success: false,
         error: 'Meal not found'
@@ -126,10 +102,18 @@ router.put('/:id', async (req, res) => {
     
     res.json({
       success: true,
-      modifiedCount: result.modifiedCount,
+      data: updatedMeal,
       message: 'Meal updated successfully'
     });
   } catch (err) {
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid meal data',
+        details: err.message
+      });
+    }
+    
     res.status(500).json({ 
       success: false, 
       error: err.message 
@@ -139,11 +123,10 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const col = await getCollection();
     const { id } = req.params;
-    const result = await col.deleteOne({ _id: new ObjectId(id) });
+    const deletedMeal = await FavouriteMeal.findByIdAndDelete(id);
     
-    if (result.deletedCount === 0) {
+    if (!deletedMeal) {
       return res.status(404).json({
         success: false,
         error: 'Meal not found'
@@ -152,7 +135,7 @@ router.delete('/:id', async (req, res) => {
     
     res.json({
       success: true,
-      deletedCount: result.deletedCount,
+      data: deletedMeal,
       message: 'Meal deleted successfully'
     });
   } catch (err) {
@@ -163,4 +146,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -20,7 +20,7 @@ export const createSession = async (req, res) => {
     };
 
     if (userId) sessionData.userId = userId;
-    else sessionData.sessionId = crypto.randomUUID();
+    sessionData.sessionId = crypto.randomUUID();
 
     const newSession = await Session.create(sessionData);
     res.status(201).json(newSession);
