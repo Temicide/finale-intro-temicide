@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
-const apiRouter = require('./routes/api');
+
+import UserRoute from "./routes/userRoute.js";
+import SessionRoute from "./routes/sessionRoute.js";
 
 const app = express();
 
@@ -9,7 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api', apiRouter);
+app.use("/user", UserRoute);
+app.use("/session", SessionRoute);
+
 
 export default app;

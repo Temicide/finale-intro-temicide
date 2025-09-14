@@ -161,4 +161,4 @@ async function handleLLMQuery(req, res) {
   }
 }
 
-module.exports = { queryLLM, llmRateLimiter, handleLLMQuery, suggestMeal, parseGeminiJson };
+module.exports = { llmRateLimiter };
