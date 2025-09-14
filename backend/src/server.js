@@ -1,34 +1,25 @@
+import "dotenv/config";
+import "./configs/db.js";
 
+import app from "./app.js";
 
-const express = require('express');
-const app = express();
-
-const path = require('path');
-
-// Middleware to parse JSON bodies
-app.use(express.json());
-
-// Serve static files from frontend/public
-app.use(express.static(path.join(__dirname, '../../frontend/public')));
-
-
-
-
-const apiRouter = require('./routes/api');
-
-const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, '../../frontend/public/index.html'));
+// This is for maintaining the server.
+process.on("uncaughtException", (err) => {
+	console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+	console.log(err.name, err.message);
+	console.log(err.stack);
+	process.exit(1);
 });
 
-
-
-
-app.use('/api', apiRouter);
-
-app.listen(PORT, () => {
-	console.log(`Server is running on port ${PORT}`);
+process.on("unhandledRejection", (err) => {
+	console.log("UNHANDLED REJECTION! 💥 Shutting down...");
+	console.log(`${err}`);
+	server.close(() => {
+		process.exit(1);
+	});
 });
 
-console.log(process.env)
+const PORT = 3222;
+const server = app.listen(PORT, "0.0.0.0", () => {
+	console.log(`Backend Server ready at http://localhost:${PORT}`);
+});
