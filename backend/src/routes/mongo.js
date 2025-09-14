@@ -17,39 +17,73 @@ async function connectMongo() {
   return db;
 }
 
-async function getCollection(name) {
+async function getCollection() {
   const database = await connectMongo();
-  return database.collection(name);
+  return database.collection("favouriteMeals");
 }
 
-// GET /api/mongo/:collection - List all documents
-router.get('/:collection', async (req, res) => {
+// GET /api/mongo/favoriteMeals - List all documents
+router.get('/', async (req, res) => {
   try {
-    const col = await getCollection(req.params.collection);
-    const docs = await col.find({}).toArray();
+    const user_id = req.query.user_id;
+    if (!user_id) {
+      return res.status(400).json({ error: 'user_id query parameter is required.' });
+    }
+    const col = await getCollection();
+    const docs = await col.find({user_id}).toArray();
     res.json(docs);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/mongo/:collection - Insert a document
-router.post('/:collection', async (req, res) => {
+// POST /api/mongo/favoriteMeals - Insert a document
+router.post('/', async (req, res) => {
   try {
-    const col = await getCollection(req.params.collection);
+    const col = await getCollection();
     const result = await col.insertOne(req.body);
     res.json({ insertedId: result.insertedId });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+  // Validate meal suggestion structure
+  const data = req.body;
+  const valid = (
+    typeof data.name === 'string' &&
+    typeof data.description === 'string' &&
+    Array.isArray(data.ingredients) &&
+    Array.isArray(data.instructions) &&
+    typeof data.nutritional_info === 'object' &&
+    typeof data.nutritional_info.calories === 'number' &&
+    typeof data.nutritional_info.protein === 'number' &&
+    typeof data.nutritional_info.carbohydrates === 'number' &&
+    typeof data.nutritional_info.fat === 'number' &&
+    typeof data.user_id === 'string'
+  );
+  if (!valid) {
+    return res.status(400).json({ error: 'Invalid meal suggestion structure.' });
+  }
+  const result = await col.insertOne(data);
+  res.json({ insertedId: result.insertedId });
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const col = await getCollection();
+    const docs = await col.findOne({_id: new ObjectId(id)});
+    res.json(docs);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // PUT /api/mongo/:collection/:id - Update a document by _id
-router.put('/:collection/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const col = await getCollection(req.params.collection);
+    const col = await getCollection();
     const { id } = req.params;
-    const result = await col.updateOne({ _id: ObjectId(id) }, { $set: req.body });
+    const result = await col.updateOne({ _id: new ObjectId(id) }, { $set: req.body });
     res.json({ modifiedCount: result.modifiedCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -57,11 +91,11 @@ router.put('/:collection/:id', async (req, res) => {
 });
 
 // DELETE /api/mongo/:collection/:id - Delete a document by _id
-router.delete('/:collection/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
-    const col = await getCollection(req.params.collection);
+    const col = await getCollection();
     const { id } = req.params;
-    const result = await col.deleteOne({ _id: ObjectId(id) });
+    const result = await col.deleteOne({ _id: new ObjectId(id) });
     res.json({ deletedCount: result.deletedCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
