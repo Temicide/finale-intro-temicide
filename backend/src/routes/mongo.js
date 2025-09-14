@@ -78,7 +78,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// PUT /api/mongo/:collection/:id - Update a document by _id
+// PUT /api/mongo/favoriteMeals/:id - Update a document by _id
 router.put('/:id', async (req, res) => {
   try {
     const col = await getCollection();
@@ -90,7 +90,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/mongo/:collection/:id - Delete a document by _id
+// DELETE /api/mongo/favoriteMeals/:id - Delete a document by _id
 router.delete('/:id', async (req, res) => {
   try {
     const col = await getCollection();

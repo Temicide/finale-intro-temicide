@@ -15,7 +15,6 @@ app.use(express.static(path.join(__dirname, '../../frontend/public')));
 
 
 const apiRouter = require('./routes/api');
-const mongoRouter = require('./routes/mongo');
 
 const PORT = process.env.PORT || 3000;
 
@@ -27,7 +26,6 @@ app.get('/', (req, res) => {
 
 
 app.use('/api', apiRouter);
-app.use('/api/mongo', mongoRouter);
 
 app.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
