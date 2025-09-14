@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal Suggestion</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; }
+    .container { max-width: 700px; margin: 40px auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color: #333; }
+    label { display:block; margin-top:1rem; }
+    input, textarea { width: 100%; padding: 0.5rem; margin-top:0.5rem; }
+    button { margin-top:1rem; padding:0.5rem 1rem; }
+    #meal-result { margin-top:2rem; color:#007bff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Meal Suggestion</h1>
+    <form id="meal-form">
+      <label for="allergies">Allergies (comma separated):</label>
+      <input type="text" id="allergies" name="allergies" placeholder="peanut, dairy">
+
+      <label for="dislikes">Dislikes (comma separated):</label>
+      <input type="text" id="dislikes" name="dislikes" placeholder="broccoli, spicy food">
+
+      <label for="goal">Goal:</label>
+      <input type="text" id="goal" name="goal" placeholder="muscle gain">
+
+      <label for="additional_preferences">Additional Preferences:</label>
+      <textarea id="additional_preferences" name="additional_preferences" placeholder="quick to prepare, high protein"></textarea>
+
+      <button type="submit">Suggest Meal</button>
+    </form>
+    <div id="meal-result"></div>
+  </div>
+  <script src="meal.js"></script>
+</body>
+</html>

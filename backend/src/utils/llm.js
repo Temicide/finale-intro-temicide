@@ -1,3 +1,50 @@
+// Parse Gemini JSON output, handling markdown/code block wrappers
+function parseGeminiJson(raw) {
+  // Remove markdown code block markers and trim
+  let cleaned = raw.replace(/^```json\s*/i, '').replace(/```$/i, '').trim();
+  // Try to find the first JSON object in the string
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if (match) {
+    try {
+      return JSON.parse(match[0]);
+    } catch (err) {
+      // If parsing fails, return the raw string
+      return { error: 'Failed to parse JSON', raw };
+    }
+  }
+  return { error: 'No JSON found', raw };
+}
+// Suggest meal utility
+async function suggestMeal({ allergies, dislikes, goal, additional_preferences }) {
+  if (!goal) {
+    throw new Error('Goal is required.');
+  }
+  let prompt = `Suggest a meal for the following:\n`;
+  if (allergies && allergies.length) prompt += `Allergies: ${allergies.join(', ')}\n`;
+  if (dislikes && dislikes.length) prompt += `Dislikes: ${dislikes.join(', ')}\n`;
+  prompt += `Goal: ${goal}\n`;
+  if (additional_preferences) prompt += `Additional preferences: ${additional_preferences}\n`;
+  prompt += `Please provide a meal suggestion with ingredients and a short preparation method.`;
+  prompt += `Please Generate Output in this specific JSON format: {
+      "meal_suggestion": {
+        "name": "name of the dish",
+        "description": "general description of what the dish is and how it fits the goal",
+        "ingredients": [
+          "list of ingredients"
+        ],
+        "instructions": [
+          "list of preparation steps"
+        ],
+        "nutritional_info": {
+          "calories": estimated calories values, in kcal,
+          "protein": estimated grams of protein,
+          "carbohydrates": estimated grams of carbohydrates,
+          "fat": estimated grams of fat
+        }
+      }
+    }`;
+  return await queryLLM(prompt);
+}
 
 
 const https = require('https');
@@ -114,4 +161,4 @@ async function handleLLMQuery(req, res) {
   }
 }
 
-module.exports = { queryLLM, llmRateLimiter, handleLLMQuery };
+module.exports = { queryLLM, llmRateLimiter, handleLLMQuery, suggestMeal, parseGeminiJson };
