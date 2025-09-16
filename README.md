@@ -1,4 +1,4 @@
-# finale-intro-temicide-frontend
+# 💪 Fuel and Flex 
 
 ## Project Structure
 
