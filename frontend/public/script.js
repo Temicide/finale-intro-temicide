@@ -1,8 +1,8 @@
-// CroissantFit frontend logic (vanilla JS)
-// Works from file:// or http://, calling backend on localhost:3222
-
 (function () {
-  const API_BASE = 'http://localhost:3222/api';
+  const API_BASE =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3222/api'
+    : '/api';
 
   // Simple state
   let userId = localStorage.getItem('croissantfit_user_id');
