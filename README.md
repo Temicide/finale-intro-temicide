@@ -19,9 +19,9 @@ cd ../frontend && npm install
 Create `backend/.env` (see `.env.example`).
 
 ```env
-PORT=3222
-MONGO_URI=your_mongodb_uri
-GEMINI_API_KEY=your_gemini_api_key
+GEMINI_API_KEY=your_google_gemini_key
+MONGO_URI=your_mongo_uri
+MONGO_DB=your_mongo_db
 ```
 
 3. Run servers (separate)
