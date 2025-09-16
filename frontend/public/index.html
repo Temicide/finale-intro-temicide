@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuel and Flex – AI Meal Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1>Fuel and <span class="accent">Flex</span></h1>
+      <p class="subtitle">AI-powered meal planning with a retro twist for fitness enthusiasts</p>
+      <div class="auth-buttons">
+        <button id="show-auth-modal" class="btn ghost">Login / Register</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" id="profile-section">
+      <h2>Create Your Meal Plan</h2>
+      <form id="planner-form" class="grid-form">
+        <div class="field">
+          <label for="goal">Fitness Goal</label>
+          <select id="goal" name="goal" required>
+            <option value="">Select your goal</option>
+            <option value="fat_loss">Fat Loss</option>
+            <option value="muscle_gain">Muscle Gain</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="endurance">Endurance</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="current_weight">Current Weight (kg)</label>
+          <input type="number" id="current_weight" name="current_weight" min="20" max="400" step="0.1" placeholder="e.g. 72">
+        </div>
+        <div class="field">
+          <label for="target_weight">Target Weight (kg)</label>
+          <input type="number" id="target_weight" name="target_weight" min="20" max="400" step="0.1" placeholder="e.g. 68">
+        </div>
+        <div class="field">
+          <label for="activity_level">Activity Level</label>
+          <select id="activity_level" name="activity_level">
+            <option value="sedentary">Sedentary (desk job)</option>
+            <option value="light">Light (1-3 days/week)</option>
+            <option value="moderate" selected>Moderate (3-5 days/week)</option>
+            <option value="active">Active (6-7 days/week)</option>
+            <option value="very_active">Very Active (2x/day)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="workout_type">Workout Type</label>
+          <select id="workout_type" name="workout_type">
+            <option value="">Select workout type</option>
+            <option value="strength">Strength</option>
+            <option value="cardio">Cardio</option>
+            <option value="flexibility">Flexibility</option>
+            <option value="combat">Combat</option>
+            <option value="sports">Sports</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="workout_days_per_week">Workout Days / Week</label>
+          <input type="number" id="workout_days_per_week" name="workout_days_per_week" min="0" max="14" placeholder="e.g. 4">
+        </div>
+        <div class="field full">
+          <label for="allergies">Food Allergies</label>
+          <input type="text" id="allergies" name="allergies" placeholder="e.g. peanuts, shellfish, dairy, or type none">
+        </div>
+        <div class="field full">
+          <label for="favorite_foods">Favorite Foods</label>
+          <input type="text" id="favorite_foods" name="favorite_foods" placeholder="e.g. chicken, rice, spinach (comma-separated), or type none">
+        </div>
+        <div class="field full">
+          <label for="dislikes">Food Dislikes</label>
+          <input type="text" id="dislikes" name="dislikes" placeholder="e.g. broccoli, tuna, mushrooms, or type none">
+        </div>
+        <div class="field full">
+          <label for="additional_preferences">Additional Preferences</label>
+          <input type="text" id="additional_preferences" name="additional_preferences" placeholder="e.g. vegan, keto, intermittent fasting 16:8, or type none">
+        </div>
+        <div class="actions">
+          <button class="btn" type="submit" id="generate-plan">🍽️ Generate Meal Plan</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" id="results-section">
+      <div class="section-header">
+        <h2>AI Results</h2>
+        <div id="results-status" class="status"></div>
+        <div class="section-actions">
+          <button class="btn success hidden" id="favorite-daily-plan">⭐ Favorite Daily Plan</button>
+        </div>
+      </div>
+      <div id="ai-output" class="ai-output">
+        <div class="empty-state">
+          <p>Generate your first meal plan to see AI-powered suggestions here!</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="favorites-section">
+      <div class="section-header">
+        <h2>Favorite Meals & Dishes</h2>
+        <div class="section-actions">
+          <button class="btn ghost" id="refresh-favorites">🔄 Refresh</button>
+        </div>
+      </div>
+      <div id="favorites-list" class="cards">
+        <div class="empty-state">
+          <p>Your favorite meals will appear here once you start saving them!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>CroissantFit</span>
+      <span class="dot">•</span>
+      <span>Eat smart. Train hard. Stay retro.</span>
+    </div>
+  </footer>
+
+  <!-- Login/Register Modal -->
+  <div id="auth-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Welcome to Fuel & Flex!</h2>
+        <button class="close-modal" id="close-auth-modal">×</button>
+      </div>
+      <div class="modal-tabs">
+        <button id="login-tab" class="tab-button active">LOGIN</button>
+        <button id="register-tab" class="tab-button">REGISTER</button>
+      </div>
+      <div class="modal-body">
+        <!-- Login Form -->
+        <div id="login-form-container" class="form-container active">
+          <h3>Welcome Back!</h3>
+          <p class="subtitle">Sign in to save your favorite meals</p>
+          <form id="login-form">
+            <div class="field">
+              <label for="login-email">EMAIL</label>
+              <input type="email" id="login-email" name="email" placeholder="your@email.com" required>
+            </div>
+            <div class="field">
+              <label for="login-password">PASSWORD</label>
+              <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="actions">
+              <button class="btn" type="submit">🔑 LOGIN</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register-form-container" class="form-container hidden">
+          <h3>Join Fuel & Flex!</h3>
+          <p class="subtitle">Create an account to unlock all features</p>
+          <form id="register-form">
+            <div class="field">
+              <label for="register-username">USERNAME</label>
+              <input type="text" id="register-username" name="username" placeholder="Choose a username" required>
+            </div>
+            <div class="field">
+              <label for="register-email">EMAIL</label>
+              <input type="email" id="register-email" name="email" placeholder="your@email.com" required>
+            </div>
+            <div class="field">
+              <label for="register-password">PASSWORD</label>
+              <input type="password" id="register-password" name="password" placeholder="Create a password" required>
+            </div>
+            <div class="actions">
+              <button class="btn" type="submit">📝 REGISTER</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
